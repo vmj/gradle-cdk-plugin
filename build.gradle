@@ -1,0 +1,132 @@
+plugins {
+    id 'groovy'
+    id 'groovy-gradle-plugin'
+    id 'jvm-test-suite'
+    // https://plugins.gradle.org/plugin/com.gradle.plugin-publish
+    id 'com.gradle.plugin-publish' version '1.0.0'
+    id 'signing'
+}
+
+group 'fi.linuxbox.gradle'
+version '0.1.0'
+
+repositories {
+    gradlePluginPortal()
+}
+
+testing {
+    suites {
+        functionalTest(JvmTestSuite) {
+            targets {
+                all {
+                    testTask.configure {
+                        shouldRunAfter(test)
+                    }
+                }
+            }
+        }
+    }
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+}
+tasks.named('check') {
+    dependsOn(testing.suites.functionalTest)
+}
+configurations {
+    functionalTestImplementation {
+        extendsFrom configurations.implementation, configurations.testImplementation
+    }
+}
+
+// Configure plugin development plugin
+gradlePlugin {
+    // Tell it which source set is using the Gradle TestKit (GradleRunner)
+    testSourceSets(sourceSets.functionalTest)
+
+    //
+    plugins {
+        cdkBasePlugin {
+            id = 'fi.linuxbox.cdk.base'
+            implementationClass = 'fi.linuxbox.gradle.cdk.base.CdkBasePlugin'
+
+            displayName = 'CDK base -plugin'
+            description = ''
+        }
+    }
+}
+
+// Configure the plugin publishing plugin
+pluginBundle {
+    website = 'https://gitlab.com/vmj/gradle-cdk-plugin'
+    vcsUrl = 'https://gitlab.com/vmj/gradle-cdk-plugin'
+    tags = ['cdk', 'IaC', 'aws']
+}
+
+publishing {
+    publications {
+        // pluginMaven(MavenPublication) add by plugin-publish plugin
+
+        pluginAsLib(MavenPublication) {
+            from components.java
+            pom {
+                // https://central.sonatype.org/publish/requirements/
+                name = 'CDK plugin for Gradle'
+                description = ''
+                url = 'https://gitlab.com/vmj/gradle-cdk-plugin'
+                licenses {
+                    license {
+                        name = 'GNU General Public License v3.0 or later'
+                        url = 'https://spdx.org/licenses/GPL-3.0-or-later.html'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'vmj'
+                        name = 'Mikko Värri'
+                        email = 'mikko@varri.fi'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:https://gitlab.com/vmj/gradle-cdk-plugin.git'
+                    developerConnection = 'scm:git:ssh://gitlab.com:vmj/gradle-cdk-plugin.git'
+                    url = 'https://gitlab.com/vmj/gradle-cdk-plugin'
+                }
+            }
+        }
+    }
+    repositories {
+//        maven {
+//            url = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+//            credentials {
+//                username nexusUsername
+//                password nexusPassword
+//            }
+//        }
+        maven {
+            name = 'someLocalRepo'
+            url = '../local-plugin-repository'
+        }
+    }
+}
+tasks.withType(PublishToMavenRepository) {
+    onlyIf {
+        // Do not publish the fi/linuxbox/npm-global stuff (pluginMaven)
+        publication == publishing.publications.pluginAsLib
+    }
+}
+
+signing {
+    sign publishing.publications.pluginAsLib
+}
+
+dependencies {
+//    // https://plugins.gradle.org/plugin/org.ysb33r.nodejs.npm
+    implementation 'org.ysb33r.nodejs.cmdline:org.ysb33r.nodejs.cmdline.gradle.plugin:0.12.3'
+    implementation 'org.ysb33r.gradle:grolifant40:1.3.3'
+    implementation 'fi.linuxbox.gradle:gradle-npm-global-plugin:0.2.0'
+
+    final spockGroovyVer = GroovySystem.version.replaceAll(/\.\d+$/,'')
+    testImplementation platform("org.spockframework:spock-bom:2.2-groovy-${spockGroovyVer}")
+    testImplementation 'org.spockframework:spock-core'
+}
