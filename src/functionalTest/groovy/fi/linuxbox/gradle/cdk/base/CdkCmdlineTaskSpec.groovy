@@ -4,7 +4,7 @@ import fi.linuxbox.gradle.GradleSpecification
 
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS
 
-class CdkCmdlineTask extends GradleSpecification {
+class CdkCmdlineTaskSpec extends GradleSpecification {
 
     void 'it should detect the CDK version'() {
         given:
