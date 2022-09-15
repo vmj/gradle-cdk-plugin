@@ -51,7 +51,7 @@ gradlePlugin {
             implementationClass = 'fi.linuxbox.gradle.cdk.base.CdkBasePlugin'
 
             displayName = 'CDK base -plugin'
-            description = ''
+            description = 'CDK bootstrapping and deploying using Gradle'
         }
     }
 }
