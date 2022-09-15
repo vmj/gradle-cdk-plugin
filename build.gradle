@@ -72,7 +72,7 @@ publishing {
             pom {
                 // https://central.sonatype.org/publish/requirements/
                 name = 'CDK plugin for Gradle'
-                description = ''
+                description = 'CDK bootstrapping and deploying using Gradle'
                 url = 'https://gitlab.com/vmj/gradle-cdk-plugin'
                 licenses {
                     license {
