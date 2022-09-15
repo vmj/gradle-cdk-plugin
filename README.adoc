@@ -1,0 +1,41 @@
+= CDK plugin for Gradle
+:toc: preable
+:icons: font
+:badge_url: https://img.shields.io
+:badge_style: ?style=for-the-badge&color=green
+:base-plugin: ./src/functionalTest/groovy/fi/linuxbox/gradle/cdk/base/CdkCmdlineTaskSpec.groovy
+
+image:{badge_url}/gradle-plugin-portal/v/fi.linuxbox.cdk.base{badge_style}["Version at Gradle plugin portal",link=https://plugins.gradle.org/plugin/fi.linuxbox.cdk.base]
+image:{badge_url}/maven-central/v/fi.linuxbox.gradle/gradle-cdk-plugin{badge_style}["Version at Maven Central", link="https://search.maven.org/artifact/fi.linuxbox.gradle/gradle-cdk-plugin"]
+
+This is (going to be) a set of Gradle plugins for CDK.
+
+Currently, this plugin requires Gradle 7.1 or newer, because `npm-global` requires
+it.
+
+== The `cdk.base` plugin
+
+By applying the CDK base plugin, your build gains access to the `CdkCmdlineTask`
+task type.  The plugin doesn't do anything else.
+
+.Example use of the CDK base plugin and the `CdkCmdlineTask`
+[source,groovy]
+----
+include::{base-plugin}[tags=base-plugin-example,indent=0]
+----
+
+The `CdkCmdlineTask` is a specialization of the `NpmPackageCmdlineTask` from the
+`npm-global` plugin.
+See https://gitlab.com/vmj/gradle-npm-global-plugin[npm-global] for details.
+Also, to control the Node.js version that is used, see
+http://ysb33rorg.gitlab.io/nodejs-gradle-plugin/0.12.3/docs/product-documentation.html[Node.js plugin].
+
+== Usage as a Library
+
+In case you want to use this as a library, this is available at Maven Central
+using group ID `fi.linuxbox.gradle` and artifact ID `gradle-cdk-plugin`.
+
+== License
+
+gradle-cdk-plugin is Free Software, licensed under GNU General Public
+License (GPL), version 3 or later. See link:LICENSE[] file for details.

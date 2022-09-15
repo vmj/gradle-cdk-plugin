@@ -4,10 +4,12 @@ import fi.linuxbox.gradle.npm.global.NpmPackage
 import fi.linuxbox.gradle.npm.global.NpmPackageCmdlineTask
 import groovy.json.JsonSlurper
 import groovy.transform.CompileStatic
+
 import java.nio.file.Path
 
 @CompileStatic
 class CdkCmdlineTask extends NpmPackageCmdlineTask {
+    protected String cdkVersion
 
     CdkCmdlineTask() {
         super()
@@ -22,18 +24,24 @@ class CdkCmdlineTask extends NpmPackageCmdlineTask {
 
     @Override
     protected Path resolveEntrypoint(Path nodeModuleDirectory) {
+        detectCdkVersion(nodeModuleDirectory)
+
+        nodeModuleDirectory.resolve('bin').resolve('cdk')
+    }
+
+    private void detectCdkVersion(Path nodeModuleDirectory) {
+        final packageJson = readPackageJson(nodeModuleDirectory)
+        assert packageJson.name == 'cdk'
+        cdkVersion = packageJson.version
+        logger.debug "Detected CDK version ${cdkVersion.inspect()}"
+    }
+
+    private static Map readPackageJson(Path nodeModuleDirectory) {
         final packageJson = nodeModuleDirectory.resolve('package.json').toFile()
         assert packageJson.exists()
 
         final parser = new JsonSlurper()
         final object = parser.parse(packageJson)
-        final packageInfo = object as Map
-
-        assert packageInfo.name == 'cdk'
-        final cdkVersion = packageInfo.version
-        logger.debug "Detected CDK version ${cdkVersion.inspect()}"
-
-        nodeModuleDirectory.resolve('bin').resolve('cdk')
+        object as Map
     }
-
 }
